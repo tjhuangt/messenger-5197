@@ -74,7 +74,7 @@ export const fetchConversations = () => async (dispatch) => {
     const { data } = await axios.get("/api/conversations");
 
     //sort the messages in each conversation
-    for(var i = 0; i < data.length; i++) {
+    for(let i = 0; i < data.length; i++) {
       data[i].messages.sort(function(a, b) { return b.createdAt < a.createdAt ? 1 : -1});
     }
 
