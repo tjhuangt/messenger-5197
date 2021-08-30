@@ -1,11 +1,14 @@
+import { updateMessage } from "./thunkCreators";
+
 export const addMessageToStore = (state, payload) => {
-  const { message, sender } = payload;
+  const { message, sender, activeConversation } = payload;
   // if sender isn't null, that means the message needs to be put in a brand new convo
   if (sender !== null) {
     const newConvo = {
       id: message.conversationId,
       otherUser: sender,
       messages: [message],
+      unread: 1,
     };
     newConvo.latestMessageText = message.text;
     return [newConvo, ...state];
@@ -16,6 +19,15 @@ export const addMessageToStore = (state, payload) => {
       const convoCopy = { ...convo }
       convoCopy.messages.push(message);
       convoCopy.latestMessageText = message.text;
+
+      //when receive new message and the conversation is NOT active, add the number of unread message
+      if(convoCopy.otherUser.id === message.senderId) {
+        if(activeConversation !== convoCopy.otherUser.username) {
+          convoCopy.unread++;
+        } else {
+          updateMessage(convoCopy.id);
+        }
+      }
       return convoCopy;
     } else {
       return convo;
@@ -59,7 +71,7 @@ export const addSearchedUsersToStore = (state, users) => {
   users.forEach((user) => {
     // only create a fake convo if we don't already have a convo with this user
     if (!currentUsers[user.id]) {
-      let fakeConvo = { otherUser: user, messages: [] };
+      let fakeConvo = { otherUser: user, messages: [], unread: 0 };
       newState.push(fakeConvo);
     }
   });
@@ -74,6 +86,19 @@ export const addNewConvoToStore = (state, recipientId, message) => {
       convoCopy.id = message.conversationId;
       convoCopy.messages.push(message);
       convoCopy.latestMessageText = message.text;
+      return convoCopy;
+    } else {
+      return convo;
+    }
+  });
+};
+
+//update the number of unread messages to 0 when active the conversation in UI
+export const clearUnreadMessagesToStore = (state, conversationId) => {
+  return state.map((convo) => {
+    if(convo.id === conversationId) {
+      const convoCopy = { ...convo };
+      convoCopy.unread = 0;
       return convoCopy;
     } else {
       return convo;

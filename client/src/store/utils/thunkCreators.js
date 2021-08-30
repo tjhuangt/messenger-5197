@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  clearUnreadMessages,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -110,6 +111,25 @@ export const postMessage =  (body) => async (dispatch) => {
     }
 
     sendMessage(data, body);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+//update unread status ONLY in UI
+export const updateMessage = async (id) => {
+  try {
+    await axios.put("/api/messages/" + id);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+//update unread status in database and UI
+export const updateMessages = (conversationId) => async (dispatch) => {
+  try {
+    await axios.put("/api/messages/" + conversationId);
+    dispatch(clearUnreadMessages(conversationId));
   } catch (error) {
     console.error(error);
   }

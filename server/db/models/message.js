@@ -10,6 +10,11 @@ const Message = db.define("message", {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
+  //flag indicate if the message is read
+  readed: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+  }
 });
 
 module.exports = Message;
