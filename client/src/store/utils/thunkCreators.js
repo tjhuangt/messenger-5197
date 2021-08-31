@@ -8,6 +8,7 @@ import {
   clearUnreadMessages,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
+import store from "../../store";
 
 axios.interceptors.request.use(async function (config) {
   const token = await localStorage.getItem("messenger-token");
@@ -76,6 +77,12 @@ export const fetchConversations = () => async (dispatch) => {
 
     //sort the messages in each conversation
     for(let i = 0; i < data.length; i++) {
+      for(let j = 0; j < data[i].messages.length; j++) {
+        if(data[i].messages[j].senderId !== store.getState().user.id) {
+          data[i].messages[j].lastReadMessage = true;
+          break;
+        }
+      };
       data[i].messages.sort(function(a, b) { return b.createdAt < a.createdAt ? 1 : -1});
     }
 
@@ -116,7 +123,7 @@ export const postMessage =  (body) => async (dispatch) => {
   }
 };
 
-//update unread status ONLY in UI
+//update unread status ONLY in database
 export const updateMessage = async (id) => {
   try {
     await axios.put("/api/messages/" + id);

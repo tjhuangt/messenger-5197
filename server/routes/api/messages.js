@@ -14,7 +14,7 @@ router.post("/", async (req, res, next) => {
 
     // if we already know conversation id, we can save time and just add it to message and return
     if (conversationId) {
-      const message = await Message.create({ senderId, text, conversationId, readed: false });
+      const message = await Message.create({ senderId, text, conversationId, read: false });
       return res.json({ message, sender });
     }
     // if we don't have conversation id, find a conversation to make sure it doesn't already exist
@@ -37,7 +37,7 @@ router.post("/", async (req, res, next) => {
       senderId,
       text,
       conversationId: conversation.id,
-      readed: false,
+      read: false,
     });
     res.json({ message, sender });
   } catch (error) {
@@ -55,22 +55,14 @@ router.put("/:id", async (req, res, next) => {
     const senderId = req.user.id;
     const conversationId = Number(req.params.id);
 
-    if(await Conversation.count({
-      where: {
-        [Op.and]: {
-          id: conversationId,
-          [Op.or]: {
-            user1Id: senderId,
-            user2Id: senderId
-          }
-        }
-      }
-    }) <= 0) {
-      res.sendStatus(400);
+    if(! await Conversation.findByPk(conversationId).then((convo) => {
+      return convo.user1Id === senderId || convo.user2Id === senderId;
+    })) {
+      res.sendStatus(404);
     };
 
     if(!Number.isNaN(conversationId) && Math.ceil(conversationId) === conversationId) {
-      const updateNumber = await Message.update( {readed : true}, {where : { conversationId : conversationId}});
+      const updateNumber = await Message.update( {read : true}, {where : { conversationId : conversationId}});
       return res.json({updateNumber});
     }else {
       return res.sendStatus(400);

@@ -74,16 +74,11 @@ router.get("/", async (req, res, next) => {
       convoJSON.unread = await Message.count({
         where: {
           [Op.and]: {
-          readed: false,
-          senderId: convoJSON.otherUser.id
+          read: false,
+          senderId: convoJSON.otherUser.id,
+          conversationId: convoJSON.id
           }
-        },
-        include: {
-          model: Conversation,
-          where: {
-            id: convoJSON.id
-          }    
-        },
+        }
       });
       
       conversations[i] = convoJSON;

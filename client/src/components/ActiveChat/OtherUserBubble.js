@@ -41,7 +41,7 @@ const useStyles = makeStyles(() => ({
 
 const OtherUserBubble = (props) => {
   const classes = useStyles();
-  const { text, time, otherUser, lastReaded } = props;
+  const { text, time, otherUser, lastReadMessage } = props;
   return (
     <Box className={classes.root}>
       <Box className={classes.messageBox}>
@@ -55,7 +55,7 @@ const OtherUserBubble = (props) => {
           </Box>
         </Box>
       </Box>
-      {lastReaded === true ? <Avatar alt={otherUser.username} src={otherUser.photoUrl} className={classes.readFlag}/> : null}
+      {lastReadMessage === true && <Avatar alt={otherUser.username} src={otherUser.photoUrl} className={classes.readFlag}/>}
     </Box>
   );
 };

@@ -10,9 +10,9 @@ let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjMwMjg0MD
 let unread = 3;
 
 describe("/api/conversations", () => {
-  it("it should return number of unread messages", done => {
+  it("should return number of unread messages", done => {
     request(app)
-      .put(`/api/conversations?id=` + userId)
+      .get(`/api/conversations?id=` + userId)
       .headers({'x-access-token': token})
       .end((err, res) => {
         res.should.have.status(200);

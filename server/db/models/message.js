@@ -11,7 +11,7 @@ const Message = db.define("message", {
     allowNull: false,
   },
   //flag indicate if the message is read
-  readed: {
+  read: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
   }
