@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { Conversation, Message } = require("../../db/models");
 const onlineUsers = require("../../onlineUsers");
+const { Op } = require("sequelize");
 
 // expects {recipientId, text, conversationId } in body (conversationId will be null if no conversation exists yet)
 router.post("/", async (req, res, next) => {
@@ -13,7 +14,7 @@ router.post("/", async (req, res, next) => {
 
     // if we already know conversation id, we can save time and just add it to message and return
     if (conversationId) {
-      const message = await Message.create({ senderId, text, conversationId });
+      const message = await Message.create({ senderId, text, conversationId, read: false });
       return res.json({ message, sender });
     }
     // if we don't have conversation id, find a conversation to make sure it doesn't already exist
@@ -36,8 +37,36 @@ router.post("/", async (req, res, next) => {
       senderId,
       text,
       conversationId: conversation.id,
+      read: false,
     });
     res.json({ message, sender });
+  } catch (error) {
+    next(error);
+  }
+});
+
+//update all messages flag to be read, id indicate conversation id
+router.put("/:id", async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.sendStatus(401);
+    }
+
+    const senderId = req.user.id;
+    const conversationId = Number(req.params.id);
+
+    if(! await Conversation.findByPk(conversationId).then((convo) => {
+      return convo.user1Id === senderId || convo.user2Id === senderId;
+    })) {
+      res.sendStatus(404);
+    };
+
+    if(!Number.isNaN(conversationId) && Math.ceil(conversationId) === conversationId) {
+      const updateNumber = await Message.update( {read : true}, {where : { conversationId : conversationId}});
+      return res.json({updateNumber});
+    }else {
+      return res.sendStatus(400);
+    }
   } catch (error) {
     next(error);
   }

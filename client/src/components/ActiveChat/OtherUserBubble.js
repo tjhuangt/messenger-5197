@@ -4,6 +4,10 @@ import { Box, Typography, Avatar } from "@material-ui/core";
 
 const useStyles = makeStyles(() => ({
   root: {
+    display: "flex",
+    justifyContent: "space-between"
+  },
+  messageBox: {
     display: "flex"
   },
   avatar: {
@@ -28,23 +32,30 @@ const useStyles = makeStyles(() => ({
     color: "#FFFFFF",
     letterSpacing: -0.2,
     padding: 8
-  }
+  },
+  readFlag: {
+    width: 20,
+    height: 20
+  },
 }));
 
 const OtherUserBubble = (props) => {
   const classes = useStyles();
-  const { text, time, otherUser } = props;
+  const { text, time, otherUser, lastReadMessage } = props;
   return (
     <Box className={classes.root}>
-      <Avatar alt={otherUser.username} src={otherUser.photoUrl} className={classes.avatar}></Avatar>
-      <Box>
-        <Typography className={classes.usernameDate}>
-          {otherUser.username} {time}
-        </Typography>
-        <Box className={classes.bubble}>
-          <Typography className={classes.text}>{text}</Typography>
+      <Box className={classes.messageBox}>
+        <Avatar alt={otherUser.username} src={otherUser.photoUrl} className={classes.avatar}></Avatar>
+        <Box>
+          <Typography className={classes.usernameDate}>
+            {otherUser.username} {time}
+          </Typography>
+          <Box className={classes.bubble}>
+            <Typography className={classes.text}>{text}</Typography>
+          </Box>
         </Box>
       </Box>
+      {lastReadMessage === true && <Avatar alt={otherUser.username} src={otherUser.photoUrl} className={classes.readFlag}/>}
     </Box>
   );
 };

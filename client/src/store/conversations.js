@@ -4,7 +4,9 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
+  clearUnreadMessagesToStore,
 } from "./utils/reducerFunctions";
+import store from "../store";
 
 // ACTIONS
 
@@ -15,6 +17,7 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
+const CLEAR_UNREAD_MESSAGES = "CLEAR_UNREAD_MESSAGES";
 
 // ACTION CREATORS
 
@@ -28,7 +31,7 @@ export const gotConversations = (conversations) => {
 export const setNewMessage = (message, sender) => {
   return {
     type: SET_MESSAGE,
-    payload: { message, sender: sender || null },
+    payload: { message, sender: sender || null, activeConversation: store.getState().activeConversation },
   };
 };
 
@@ -67,6 +70,14 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
+//remove unread messages from UI
+export const clearUnreadMessages = (conversationId) => {
+  return {
+    type: CLEAR_UNREAD_MESSAGES,
+    conversationId,
+  }
+};
+
 // REDUCER
 
 const reducer = (state = [], action) => {
@@ -91,6 +102,8 @@ const reducer = (state = [], action) => {
         action.payload.recipientId,
         action.payload.newMessage
       );
+      case CLEAR_UNREAD_MESSAGES:
+      return clearUnreadMessagesToStore(state, action.conversationId);
     default:
       return state;
   }
