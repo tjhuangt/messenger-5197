@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { Conversation, Message } = require("../../db/models");
 const onlineUsers = require("../../onlineUsers");
+const { Op } = require("sequelize");
 
 // expects {recipientId, text, conversationId } in body (conversationId will be null if no conversation exists yet)
 router.post("/", async (req, res, next) => {
@@ -50,8 +51,23 @@ router.put("/:id", async (req, res, next) => {
     if (!req.user) {
       return res.sendStatus(401);
     }
-    
+
+    const senderId = req.user.id;
     const conversationId = Number(req.params.id);
+
+    if(await Conversation.count({
+      where: {
+        [Op.and]: {
+          id: conversationId,
+          [Op.or]: {
+            user1Id: senderId,
+            user2Id: senderId
+          }
+        }
+      }
+    }) <= 0) {
+      res.sendStatus(400);
+    };
 
     if(!Number.isNaN(conversationId) && Math.ceil(conversationId) === conversationId) {
       const updateNumber = await Message.update( {readed : true}, {where : { conversationId : conversationId}});
